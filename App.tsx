@@ -1,15 +1,14 @@
-import { ScreenContent } from 'components/ScreenContent';
+import { Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Text } from 'react-native';
+import { Provider as JotaiProvider } from 'jotai';
 
 import './global.css';
 
 export default function App() {
   return (
-    <>
-      <ScreenContent title="Home" path="App.tsx"></ScreenContent>
-
+    <JotaiProvider>
+      <Slot />
       <StatusBar style="auto" />
-    </>
+    </JotaiProvider>
   );
 }
