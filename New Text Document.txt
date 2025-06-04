@@ -1,0 +1,60 @@
+// This is a JSON response for a successful request in an API.
+// For the refresh token, me and logout the request is based on the bearer jwt token
+// 
+
+// POST /api/auth/login
+REQUEST
+{
+  "email": "admin@example.com",
+  "password": "adminpassword"
+}
+
+RESPONCE
+{
+  "user": {
+    "id": 1,
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "createdAt": "2025-05-23T21:24:22.176Z",
+    "updatedAt": "2025-05-23T21:24:22.176Z",
+    "roles": ["staff", "supervisor", "admin"]
+  },
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsIm5hbWUiOiJBZG1pbiBVc2VyIiwicm9sZXMiOlsic3RhZmYiLCJzdXBlcnZpc29yIiwiYWRtaW4iXSwiZXhwIjoxNzQ5MDg1MjYxfQ.CgY9sWxX33x96h7y8DUEDT7--FFGHldi1YKlT7qQo0M"
+}
+
+//GET /api/auth/me
+
+{
+  "message": "User profile retrieved",
+  "user": {
+    "id": 1,
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "createdAt": "2025-05-23T21:24:22.176Z",
+    "updatedAt": "2025-05-23T21:24:22.176Z",
+    "roles": ["staff", "supervisor", "admin"]
+  }
+}
+
+//POST /api/auth/refresh-token 
+
+{
+  "success": true,
+  "message": "Token refreshed successfully",
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsIm5hbWUiOiJBZG1pbiBVc2VyIiwicm9sZXMiOlsic3RhZmYiLCJzdXBlcnZpc29yIiwiYWRtaW4iXSwiZXhwIjoxNzQ5MDg1NzI3fQ.VVj-Tgnvw1E9C92ik3uyXiKEXt73w7_2UMhf5qXieSg",
+  "user": {
+    "id": 1,
+    "email": "admin@example.com",
+    "name": "Admin User",
+    "roles": ["staff", "supervisor", "admin"]
+  }
+}
+
+//POST /api/auth/logout
+
+{
+  "success": true,
+  "message": "Successfully logged out"
+}
+
+ 
