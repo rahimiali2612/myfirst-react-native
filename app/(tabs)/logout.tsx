@@ -1,26 +1,29 @@
-import React from 'react';
-import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../context/auth';
 
 export default function LogoutScreen() {
   const router = useRouter();
+  const { logout } = useAuth();
+  const hasLoggedOut = useRef(false);
 
   React.useEffect(() => {
-    // Simulate logout process
-    const timer = setTimeout(() => {
-      // Show confirmation
-      Alert.alert('Logged Out', 'You have been successfully logged out.', [
-        {
-          text: 'OK',
-          onPress: () => router.replace('/'),
-        },
-      ]);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [router]);
+    if (hasLoggedOut.current) return;
+    hasLoggedOut.current = true;
+    const doLogout = async () => {
+      try {
+        await logout();
+        router.replace('/login');
+      } catch (error) {
+        console.error('Logout error:', error);
+        router.replace('/login');
+      }
+    };
+    doLogout();
+  }, [router, logout]);
 
   return (
     <SafeAreaView className="flex-1">

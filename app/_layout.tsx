@@ -1,67 +1,72 @@
-import { Tabs } from 'expo-router';
+import { Slot, Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import React from 'react';
 
+import { AuthProvider, useAuth } from '../context/auth';
 import '../global.css';
+
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { token, loading, refresh, logout } = useAuth();
+  const router = require('expo-router').useRouter();
+
+  React.useEffect(() => {
+    // Check connection by calling refresh (which pings the backend)
+    let cancelled = false;
+    const checkConnection = async () => {
+      try {
+        if (token) {
+          await refresh();
+        }
+      } catch (error) {
+        if (!cancelled) {
+          if (typeof logout === 'function') {
+            await logout();
+          }
+          router.replace('/login');
+        }
+      }
+    };
+    if (!loading && token) {
+      checkConnection();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [token, loading, refresh, logout, router]);
+
+  React.useEffect(() => {
+    if (!loading && !token) {
+      router.replace('/login');
+    } else if (!loading && token) {
+      // If the user has a token and is on login page, redirect them to home
+      if (router.pathname === '/login') {
+        router.replace('/(tabs)');
+      }
+    }
+  }, [token, loading, router]);
+
+  if (loading) return null;
+  return <>{children}</>;
+}
+
+// Define which screens use the tabs layout
+export const unstable_settings = {
+  initialRouteName: 'index',
+};
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarStyle: {
-            borderTopWidth: 1,
-            borderTopColor: '#e5e7eb',
-            paddingTop: 5,
-            paddingBottom: 5,
-            height: 90,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: -2,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 3,
-            elevation: 5,
-          },
-          tabBarActiveTintColor: '#3b82f6',
-          tabBarInactiveTintColor: '#6b7280',
-          tabBarLabelStyle: {
-            fontSize: 12,
-            marginTop: 2,
-          },
-        }}>
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'Home',
-            tabBarIcon: ({ color, size, focused }) => (
-              <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: 'Profile',
-            tabBarIcon: ({ color, size, focused }) => (
-              <Ionicons name={focused ? 'person' : 'person-outline'} size={22} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="logout"
-          options={{
-            title: 'Logout',
-            tabBarIcon: ({ color, size, focused }) => (
-              <Ionicons name={focused ? 'log-out' : 'log-out-outline'} size={22} color={color} />
-            ),
-          }}
-        />
-      </Tabs>
-      <StatusBar style="auto" />
+      <AuthProvider>
+        <AuthGate>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="login" />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+          <StatusBar style="auto" />
+        </AuthGate>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
