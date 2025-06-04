@@ -1,7 +1,10 @@
 // utils/authHeaders.ts
-export function getHeaders(token: string) {
-  return {
+export function getHeaders(token?: string) {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
   };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
 }

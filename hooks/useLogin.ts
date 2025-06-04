@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { loginService } from '../services/loginService';
+import { loginService } from '../services/authService';
 
 export function useLogin() {
   const [loading, setLoading] = useState(false);
