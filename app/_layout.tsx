@@ -3,7 +3,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 
-import { AuthProvider, useAuth } from '../context/auth';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import '../global.css';
 
 function AuthGate({ children }: { children: React.ReactNode }) {

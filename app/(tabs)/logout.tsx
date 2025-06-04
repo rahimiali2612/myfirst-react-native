@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../context/auth';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function LogoutScreen() {
   const router = useRouter();

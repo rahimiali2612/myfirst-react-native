@@ -14,53 +14,34 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../context/auth';
+import { useAuth } from '../contexts/AuthContext';
 import { API_URL } from '../app-env';
 import { Ionicons } from '@expo/vector-icons';
+import { useLogin } from '../hooks/useLogin';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('admin@example.com');
   const [password, setPassword] = useState('admin1234');
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { login, logout } = useAuth();
+  const { login: authLogin, logout } = useAuth();
+  const { login, loading, error } = useLogin();
 
   const handleLogin = async () => {
-    setLoading(true);
     try {
       console.log(`Attempting to connect to: ${API_URL}/api/auth/login`);
-
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      // Log only status for debugging
-      console.log('Login response status:', response.status);
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          Alert.alert('Login Failed', 'Invalid email or password');
-        } else {
-          Alert.alert('Login Failed', `Server returned status: ${response.status}`);
-        }
-        setLoading(false);
-        return;
-      }
-      const data = await response.json();
+      const data = await login(email, password);
       if (data.token) {
-        await login(data.token, data.user);
+        await authLogin(data.token, data.user);
         router.replace('/(tabs)');
       } else {
         Alert.alert('Login Failed', 'Server response missing token');
       }
-    } catch (error) {
-      console.error('Login error:', error);
-
-      // More detailed network error handling
-      if (error instanceof TypeError && error.message.includes('Network request failed')) {
-        // If the backend is down, log out the user automatically
+    } catch (error: any) {
+      if (error && error.status === 401) {
+        Alert.alert('Login Failed', 'Invalid email or password');
+      } else if (error && error.status) {
+        Alert.alert('Login Failed', `Server returned status: ${error.status}`);
+      } else if (error instanceof TypeError && error.message.includes('Network request failed')) {
         if (typeof logout === 'function') {
           await logout();
         }
@@ -76,8 +57,6 @@ export default function LoginScreen() {
       } else {
         Alert.alert('Login Error', 'An unexpected error occurred. Please try again later.');
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -137,6 +116,7 @@ export default function LoginScreen() {
                 <Text className="text-center text-lg font-bold text-white">Sign In</Text>
               )}
             </TouchableOpacity>
+            {error && <Text className="mt-2 text-center text-red-500">{error}</Text>}
           </View>
 
           <Text className="mt-8 text-center text-gray-500">Demo credentials are pre-filled</Text>

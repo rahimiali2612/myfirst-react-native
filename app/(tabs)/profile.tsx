@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenContent } from '../../components/ScreenContent';
-import { useAuth } from '../../context/auth';
+import { useAuth } from '../../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { API_URL } from '../../app-env';
+import { getUserInfoService } from '../../services/authService';
 
 export default function ProfileScreen() {
   const { user, token, refresh } = useAuth();
@@ -38,23 +39,7 @@ export default function ProfileScreen() {
       console.log(`Making user info request to: ${API_URL}/api/auth/me`);
       console.log(`Using token: ${token.substring(0, 15)}...`);
 
-      const response = await fetch(`${API_URL}/api/auth/me`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      console.log(`User info response status: ${response.status}`);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.log('Error response:', errorText);
-        Alert.alert('API Error', `Failed to get user info. Status: ${response.status}`);
-        return;
-      }
-
-      const data = await response.json();
+      const data = await getUserInfoService(token);
       Alert.alert('Success', 'User info retrieved successfully');
       console.log('User info data:', JSON.stringify(data));
     } catch (error) {
